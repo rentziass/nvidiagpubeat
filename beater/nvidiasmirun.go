@@ -42,7 +42,7 @@ func Run(c NVIDIACommands, query string) []common.MapStr {
 		headers := strings.Split(query, ",")
 		event := common.MapStr{
 			"@timestamp": common.Time(time.Now()),
-			"gpu":        gpuIndex,
+			"gpuIndex":   gpuIndex,
 		}
 		for i := 0; i < len(record); i++ {
 			value, _ := strconv.Atoi(record[i])
