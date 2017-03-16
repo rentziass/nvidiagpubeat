@@ -44,12 +44,6 @@ func (bt *Nvidiagpubeat) Run(b *beat.Beat) error {
 			return nil
 		case <-ticker.C:
 		}
-		/*event := common.MapStr{
-			"@timestamp": common.Time(time.Now()),
-			"type":       b.Name,
-			"counter":    counter,
-		}
-		bt.client.PublishEvent(event)*/
 		cmd := NvidiaCommand{query: bt.config.Query, env: bt.config.Env}
 		events := Run(cmd, cmd.query)
 		for _, event := range events {
