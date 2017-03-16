@@ -19,7 +19,7 @@ type NvidiaCommand struct {
 //GetSMI nvidia-smi command
 func (c NvidiaCommand) GetSMI() (cmd *exec.Cmd) {
 	if c.env == "local" {
-		return exec.Command("mocknvdiasmi")
+		return exec.Command("localnvidiasmi")
 	}
 	return exec.Command("nvidia-smi", "--query-gpu="+c.query, "--format=csv")
 }
