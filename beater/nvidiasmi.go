@@ -11,21 +11,21 @@ type NVIDIACommands interface {
 	getNumGpus() int
 }
 
-type NvidiaCommand struct {
+type NVIDIASMI struct {
 	query string
 	env   string
 }
 
 //GetSMI nvidia-smi command
-func (c NvidiaCommand) GetSMI() (cmd *exec.Cmd) {
-	if c.env == "local" {
+func (c NVIDIASMI) GetSMI() (cmd *exec.Cmd) {
+	if c.env == "test" {
 		return exec.Command("localnvidiasmi")
 	}
 	return exec.Command("nvidia-smi", "--query-gpu="+c.query, "--format=csv")
 }
 
-func (c NvidiaCommand) getNumGpus() int {
-	if c.env == "local" {
+func (c NVIDIASMI) getNumGpus() int {
+	if c.env == "test" {
 		return 4
 	}
 	cmd := "ls /dev | grep nvidia | grep -v nvidia-uvm | grep -v nvidiactl | wc -l"
