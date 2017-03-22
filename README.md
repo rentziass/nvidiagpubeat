@@ -1,6 +1,13 @@
 # Nvidiagpubeat
 
 Welcome to Nvidiagpubeat.
+Nvidiagpubeat is an elastic beat that uses NVIDIA System Management Interface (nvidia-smi) to monitor NVIDIA GPU devices and can ingest metrics into Elastic search cluster. nvidia-smi is a command line utility, based on top of the NVIDIA Management Library (NVML), intended to aid in the management and monitoring of NVIDIA GPU devices.
+
+Nvidiagpu beat with help of nvidia-smi allows administrators to query GPU device state.  It is targeted at the TeslaTM, GRIDTM, QuadroTM and Titan X product, though limited support is also available on other NVIDIA GPUs.
+
+NVIDIA-smi ships with NVIDIA GPU display drivers on Linux, and with 64bit Windows Server 2008 R2 and Windows 7.
+
+Nvidiagpubeat provides ability (look at nvidiagpubeat.yml) to configure metrics that needs to be monitored and by default it queries utilization.gpu,utilization.memory,memory.total,memory.free,memory.used,temperature.gpu,pstate and can ingest them into elastic search cluster for possibly visualization using Kibana.
 
 Ensure that this folder is at the following location:
 `${GOPATH}/github.com/deepujain`
