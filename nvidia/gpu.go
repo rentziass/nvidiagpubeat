@@ -1,9 +1,9 @@
-package beater
+package nvidia
 
 import (
-	"bufio"
 	"encoding/csv"
 	"io"
+	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -11,13 +11,32 @@ import (
 	"github.com/elastic/beats/libbeat/common"
 )
 
-func Run(c NVIDIACommands, query string) []common.MapStr {
-	smiCmd := c.GetSMI()
-	stdout, _ := smiCmd.StdoutPipe()
-	smiCmd.Start()
-	reader := bufio.NewReader(stdout)
+//GPUUtilization provides interface to utilization metrics and state of GPU.
+type GPUUtilization interface {
+	command(env string) *exec.Cmd
+	run(cmd *exec.Cmd, gpuCount int, query string, action Action) int
+}
+
+//Utilization implements one flavour of GPUCount interface.
+type Utilization struct {
+}
+
+//NewUtilization returns instance of Utilization
+func NewUtilization() Utilization {
+	return Utilization{}
+}
+
+func (g Utilization) command(env string, query string) *exec.Cmd {
+	if env == "test" {
+		return exec.Command("localnvidiasmi")
+	}
+	return exec.Command("nvidia-smi", "--query-gpu="+query, "--format=csv")
+}
+
+func (g Utilization) run(cmd *exec.Cmd, gpuCount int, query string, action Action) []common.MapStr {
+	reader := action.start(cmd)
 	gpuIndex := 0
-	events := make([]common.MapStr, c.getNumGpus(), 2*c.getNumGpus())
+	events := make([]common.MapStr, gpuCount, 2*gpuCount)
 
 	for {
 		line, err := reader.ReadString('\n')

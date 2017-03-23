@@ -10,6 +10,7 @@ import (
 	"github.com/elastic/beats/libbeat/publisher"
 
 	"github.com/deepujain/nvidiagpubeat/config"
+	"github.com/deepujain/nvidiagpubeat/nvidia"
 )
 
 type Nvidiagpubeat struct {
@@ -45,8 +46,10 @@ func (bt *Nvidiagpubeat) Run(b *beat.Beat) error {
 			return nil
 		case <-ticker.C:
 		}
-		cmd := NVIDIASMI{query: bt.config.Query, env: bt.config.Env}
-		events := Run(cmd, cmd.query)
+
+		metrics := nvidia.NewMetrics()
+		events := metrics.Get(bt.config.Env, bt.config.Query)
+
 		for _, event := range events {
 			bt.client.PublishEvent(event)
 		}
