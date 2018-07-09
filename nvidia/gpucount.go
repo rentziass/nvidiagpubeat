@@ -9,7 +9,7 @@ import (
 //GPUCount provides interface to get gpu count command and run it.
 type GPUCount interface {
 	command() *exec.Cmd
-	run(cmd *exec.Cmd, env string) int
+	run(cmd *exec.Cmd, env string) (int, error)
 }
 
 //Count implements one flavour of GPUCount interface.
@@ -26,14 +26,16 @@ func (g Count) command() *exec.Cmd {
 	return exec.Command("bash", "-c", cmd)
 }
 
-func (g Count) run(cmd *exec.Cmd, env string) int {
+func (g Count) run(cmd *exec.Cmd, env string) (int, error) {
 	if env == "test" {
-		return 4
+		return 4, nil
 	}
 	out, err := cmd.Output()
 	ret := 0
 	if err == nil {
 		ret, _ = strconv.Atoi(strings.TrimSpace(string(out)))
+		return ret, nil
+	} else {
+		return -1, err
 	}
-	return ret
 }

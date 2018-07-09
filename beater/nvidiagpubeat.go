@@ -35,7 +35,7 @@ func New(b *beat.Beat, cfg *common.Config) (beat.Beater, error) {
 
 //Run Contains the main application loop that captures data and sends it to the defined output using the publisher
 func (bt *Nvidiagpubeat) Run(b *beat.Beat) error {
-	logp.Info("nvidiagpubeat is running! Hit CTRL-C to stop it.")
+	logp.Info("nvidiagpubeat is running for ** %s ** environment. ! Hit CTRL-C to stop it.", bt.config.Env)
 
 	bt.client = b.Publisher.Connect()
 	ticker := time.NewTicker(bt.config.Period)
@@ -48,12 +48,15 @@ func (bt *Nvidiagpubeat) Run(b *beat.Beat) error {
 		}
 
 		metrics := nvidia.NewMetrics()
-		events := metrics.Get(bt.config.Env, bt.config.Query)
-
-		for _, event := range events {
-			bt.client.PublishEvent(event)
+		events, err := metrics.Get(bt.config.Env, bt.config.Query)
+		if err != nil {
+			logp.Err("Event not generated, error: %s", err.Error())
+		} else {
+			logp.Info("Event generated, Attempting to publish to configured output.")
+			for _, event := range events {
+				bt.client.PublishEvent(event)
+			}
 		}
-		logp.Info("Event sent")
 		counter++
 	}
 }

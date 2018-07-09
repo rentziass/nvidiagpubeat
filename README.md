@@ -17,14 +17,34 @@ Ensure that this folder is at the following location:
 ### Requirements
 
 * [Golang](https://golang.org/dl/) 1.7
+* virtualenv - https://virtualenv.pypa.io/en/stable/
+```
+sudo curl https://bootstrap.pypa.io/get-pip.py | sudo python
+sudo pip install virtualenv
+```
+* glide - https://github.com/Masterminds/glide#install
+```
+brew install glide
+```
 
 ### Init Project
-To get running with Nvidiagpubeat and also install the
-dependencies, run the following command:
+To get running with Nvidiagpubeat and also install the dependencies, run the following command:
 
 ```
-make setup
+mkdir beats_dev
+
+#Use an empty directory
+export WORKSPACE=`pwd`/beats_dev
+export GOPATH=$WORKSPACE
+git clone https://github.com/elastic/beats ${GOPATH}/src/github.com/elastic/beats
+mkdir $WORKSPACE/src/github.com/deepujain
+cd $WORKSPACE/src/github.com/deepujain
+git clone https://github.com/deepujain/nvidiagpubeat
+cd nvidiagpubeat/
+make
 ```
+
+
 
 It will create a clean git history for each major step. Note that you can always rewrite the history if you wish before pushing your changes.
 
@@ -39,7 +59,7 @@ For further development, check out the [beat developer guide](https://www.elasti
 
 ### Build
 
-To build the binary for Nvidiagpubeat run the command below. This will generate a binary
+Make changes (if any) and build the binary for Nvidiagpubeat run the command below. This will generate a binary
 in the same directory with the name nvidiagpubeat.
 
 ```
@@ -49,11 +69,14 @@ make
 
 ### Run
 
-To run Nvidiagpubeat with debugging output enabled, run:
+To run Nvidiagpubeat in test environment with debugging output enabled, run:
 
 ```
+export PATH=$PATH:.
 ./nvidiagpubeat -c nvidiagpubeat.yml -e -d "*"
 ```
+nvidiagpubeat.yml contains env set to "test". This will run localnvidiasmi utility instead of nvidia-smi. Switch
+env=production to use pre-installed nvidia-smi utility on a GPU machine.
 
 
 ### Test

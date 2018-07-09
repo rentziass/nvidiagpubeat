@@ -26,7 +26,7 @@ func Test_GPUCount_Command(t *testing.T) {
 func Test_GPUCount_Run_TestEnv(t *testing.T) {
 	count := NewCount()
 	cmd := count.command()
-	gpuCount := count.run(cmd, "test")
+	gpuCount, _ := count.run(cmd, "test")
 
 	if gpuCount != 4 {
 		t.Errorf("Expected %d, Actual %d", 4, gpuCount)
@@ -36,9 +36,9 @@ func Test_GPUCount_Run_TestEnv(t *testing.T) {
 func Test_GPUCount_Run_ProdEnv(t *testing.T) {
 	count := NewCount()
 	cmd := count.command()
-	gpuCount := count.run(cmd, "prod")
+	gpuCount, _ := count.run(cmd, "prod")
 
-	if gpuCount != 0 {
-		t.Errorf("Expected %d, Actual %d", 0, gpuCount)
+	if gpuCount != -1 {
+		t.Errorf("Expected %d, Actual %d", -1, gpuCount)
 	}
 }

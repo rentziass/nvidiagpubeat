@@ -2,6 +2,7 @@ package nvidia
 
 import (
 	"encoding/csv"
+	"errors"
 	"io"
 	"os/exec"
 	"strconv"
@@ -14,7 +15,7 @@ import (
 //GPUUtilization provides interface to utilization metrics and state of GPU.
 type GPUUtilization interface {
 	command(env string) *exec.Cmd
-	run(cmd *exec.Cmd, gpuCount int, query string, action Action) int
+	run(cmd *exec.Cmd, gpuCount int, query string, action Action) ([]common.MapStr, error)
 }
 
 //Utilization implements one flavour of GPUCount interface.
@@ -33,7 +34,7 @@ func (g Utilization) command(env string, query string) *exec.Cmd {
 	return exec.Command("nvidia-smi", "--query-gpu="+query, "--format=csv")
 }
 
-func (g Utilization) run(cmd *exec.Cmd, gpuCount int, query string, action Action) []common.MapStr {
+func (g Utilization) run(cmd *exec.Cmd, gpuCount int, query string, action Action) ([]common.MapStr, error) {
 	reader := action.start(cmd)
 	gpuIndex := 0
 	events := make([]common.MapStr, gpuCount, 2*gpuCount)
@@ -47,6 +48,10 @@ func (g Utilization) run(cmd *exec.Cmd, gpuCount int, query string, action Actio
 		if strings.Contains(line, "utilization") {
 			continue
 		}
+		if len(line) == 0 {
+			return nil, errors.New("Unable to fetch any events from nvidia-smi: Error " + err.Error())
+		}
+
 		// Remove units put by nvidia-smi
 		line = strings.Replace(line, " %", "", -1)
 		line = strings.Replace(line, " MiB", "", -1)
@@ -70,5 +75,5 @@ func (g Utilization) run(cmd *exec.Cmd, gpuCount int, query string, action Actio
 		events[gpuIndex] = event
 		gpuIndex++
 	}
-	return events
+	return events, nil
 }

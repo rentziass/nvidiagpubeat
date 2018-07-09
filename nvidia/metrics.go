@@ -1,10 +1,12 @@
 package nvidia
 
-import "github.com/elastic/beats/libbeat/common"
+import (
+	"github.com/elastic/beats/libbeat/common"
+)
 
 //GPUMetrics provides slice of metrics passed as argument for a given environment
 type GPUMetrics interface {
-	GetMetrics(env string, query string) []common.MapStr
+	GetMetrics(env string, query string) ([]common.MapStr, error)
 }
 
 //Metrics implements one flavour of GPUMetrics interface.
@@ -17,13 +19,15 @@ func NewMetrics() Metrics {
 }
 
 //Get return a slice of GPU metrics
-func (m Metrics) Get(env string, query string) []common.MapStr {
+func (m Metrics) Get(env string, query string) ([]common.MapStr, error) {
 	gpuCount := NewCount()
 	gpuCountCmd := gpuCount.command()
-	count := gpuCount.run(gpuCountCmd, env)
-
+	count, err := gpuCount.run(gpuCountCmd, env)
+	if err != nil {
+		return nil, err
+	}
 	gpuUtilization := NewUtilization()
 	gpuUtilizationCmd := gpuUtilization.command(env, query)
-	events := gpuUtilization.run(gpuUtilizationCmd, count, query, NewLocal())
-	return events
+	events, err := gpuUtilization.run(gpuUtilizationCmd, count, query, NewLocal())
+	return events, err
 }
