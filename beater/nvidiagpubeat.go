@@ -54,7 +54,9 @@ func (bt *Nvidiagpubeat) Run(b *beat.Beat) error {
 		} else {
 			logp.Info("Event generated, Attempting to publish to configured output.")
 			for _, event := range events {
-				bt.client.PublishEvent(event)
+				if event != nil {
+					bt.client.PublishEvent(event)
+				}
 			}
 		}
 		counter++
