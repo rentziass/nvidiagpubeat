@@ -67,6 +67,7 @@ func (g Utilization) run(cmd *exec.Cmd, gpuCount int, query string, action Actio
 		event := common.MapStr{
 			"@timestamp": common.Time(time.Now()),
 			"gpuIndex":   gpuIndex,
+			"type":   "nvidiagpubeat",
 		}
 		for i := 0; i < len(record); i++ {
 			value, _ := strconv.Atoi(record[i])
