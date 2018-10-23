@@ -1,7 +1,6 @@
 package nvidia
 
 import (
-	"fmt"
 	"os"
 	"testing"
 )
@@ -32,11 +31,11 @@ func Test_Command_ProdEnv(t *testing.T) {
 	}
 
 	if cmd.Args[1] != "--query-gpu=myquery" {
-		t.Errorf("Expected %s, Actual %s", "--query-gpu=myquery", cmd.Args[0])
+		t.Errorf("Expected %s, Actual %s", "--query-gpu=myquery", cmd.Args[1])
 	}
 
 	if cmd.Args[2] != "--format=csv" {
-		t.Errorf("Expected %s, Actual %s", "--format=csv", cmd.Args[0])
+		t.Errorf("Expected %s, Actual %s", "--format=csv", cmd.Args[2])
 	}
 }
 
@@ -56,7 +55,7 @@ func Test_Run_ProdEnv(t *testing.T) {
 	util := NewUtilization()
 	query := "utilization.gpu,utilization.memory,memory.total,memory.free,memory.used,temperature.gpu,pstate"
 	cmd := util.command("prod", query)
-	fmt.Println(cmd.Path)
+	t.Logf("Command: %s", cmd.Path)
 	output, _ := util.run(cmd, 4, query, MockLocal{})
 
 	for _, o := range output {
@@ -64,5 +63,20 @@ func Test_Run_ProdEnv(t *testing.T) {
 			t.Errorf("output cannot be nil.")
 		}
 	}
+}
 
+func Test_Event_Contains_Type_Field(t *testing.T) {
+	util := NewUtilization()
+	query := "utilization.gpu,utilization.memory,memory.total,memory.free,memory.used,temperature.gpu,pstate"
+	cmd := util.command("prod", query)
+	t.Logf("Command: %s", cmd.Path)
+
+	output, _ := util.run(cmd, 4, query, MockLocal{})
+	t.Logf("Nr. of Events: %d", len(output))
+
+	for _, o := range output {
+		if o["type"] != "nvidiagpubeat" {
+			t.Errorf("event does not contain 'type' field equal to 'nvidiagpubeat'")
+		}
+	}
 }

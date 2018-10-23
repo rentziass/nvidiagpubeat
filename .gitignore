@@ -1,6 +1,6 @@
 /.idea
 /build
-
+.venv
 .DS_Store
 /logs
 /nvidiagpubeat
