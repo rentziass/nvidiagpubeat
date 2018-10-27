@@ -1,0 +1,44 @@
+version: 2
+
+references:
+  container_config: &container_config
+    docker:
+      - image: rentziass/nvidiagpubeat_ci
+        environment:
+          - WORKSPACE: /beats_test
+          - GOPATH: /beats_test
+
+  clone_elastic_beats: &clone_elastic_beats
+    run:
+      name: Clone github.com/elastic/beats
+      command: git clone https://github.com/elastic/beats ${GOPATH}/src/github.com/elastic/beats
+
+  clone_nvidiagpubeat: &clone_nvidiagpubeat
+    run:
+      name: Clone github.com/deepujain/nvidiagpubeat
+      command: git clone https://github.com/deepujain/nvidiagpubeat ${GOPATH}/src/github.com/deepujain/nvidiagpubeat
+
+jobs:
+  build:
+    <<: *container_config
+    steps:
+      - *clone_elastic_beats
+      - *clone_nvidiagpubeat
+
+      - run:
+          name: Make
+          command: |
+            cd ${GOPATH}/src/github.com/deepujain/nvidiagpubeat
+            make
+
+      - run:
+          name: Unit tests
+          command: |
+            cd ${GOPATH}/src/github.com/deepujain/nvidiagpubeat
+            make unit-tests
+
+workflows:
+  version: 2
+  continuous-integration:
+    jobs:
+      - build
